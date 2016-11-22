@@ -13,6 +13,7 @@
 #define DROP_DOWN_MENU_WIDTH ((int)150)
 #define DROP_DOWN_MENU_HEIGHT ((int)44)
 #define POSTER_IMAGE_HEIGHT ((int)80)
+#define CELL_SPACING ((int)14)
 
 static NSString *const MV_BOLD_FONT_NAME = @"Avenir-Heavy";
 static NSString *const MV_REGULAR_FONT_NAME = @"Avenir-Book";

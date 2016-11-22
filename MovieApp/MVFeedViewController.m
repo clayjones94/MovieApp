@@ -151,9 +151,9 @@
     return _movies.count;
 }
 
-//Fetch next page of movies if reached bottom
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == [tableView numberOfRowsInSection:0] - 1) {
+        //Fetch next page of movies if reached bottom
         _currentPage ++;
         [self loadMovies];
     }

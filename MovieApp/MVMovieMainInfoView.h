@@ -12,6 +12,7 @@
 @interface MVMovieMainInfoView : UIView
 
 @property (nonatomic) MVMovie *movie;
+@property (nonatomic) BOOL detailMode;
 
 -(void) layoutViews;
 

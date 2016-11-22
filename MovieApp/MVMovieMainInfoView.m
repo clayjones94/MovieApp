@@ -31,6 +31,7 @@
 }
 
 @synthesize movie = _movie;
+@synthesize detailMode = _detailMode;
 
 -(void)setMovie:(MVMovie *)movie {
     _movie = movie;
@@ -50,6 +51,17 @@
     [_posterImageView sd_setImageWithURL:[NSURL URLWithString:urlString] placeholderImage:[UIImage imageNamed:@"missing_poster"]];
 }
 
+-(void)setDetailMode:(BOOL)detailMode {
+    _detailMode = detailMode;
+    [self animateDetailMode];
+}
+
+-(void) animateDetailMode { 
+    [UIView animateWithDuration:.2 animations:^{
+        [self layoutViews];
+    }];
+}
+
 -(instancetype)init {
     self = [super init];
     if (self) {
@@ -61,7 +73,7 @@
         [_backgroundTitleLabel setTextColor:[UIColor groupTableViewBackgroundColor]];
         _backgroundTitleLabel.numberOfLines = 1;
         _backgroundTitleLabel.lineBreakMode = NSLineBreakByClipping;
-        [_backgroundTitleLabel setFont:[UIFont fontWithName:MV_BOLD_FONT_NAME size:64]];
+        [_backgroundTitleLabel setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:64]];
         [_backgroundTitleLabel setAlpha:.4];
         [self addSubview:_backgroundTitleLabel];
         
@@ -127,12 +139,12 @@
     
     CGFloat MARGIN = 14;
     CGFloat PHOTO_MARGIN = 10;
-    [_posterImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self).with.offset(PHOTO_MARGIN);
-        make.bottom.equalTo(self).with.offset(-(PHOTO_MARGIN));
-        make.left.equalTo(self).with.offset(PHOTO_MARGIN);
-        make.width.mas_equalTo(POSTER_IMAGE_HEIGHT);
-    }];
+
+    if (!_detailMode) {
+        [_posterImageView setFrame:CGRectMake(PHOTO_MARGIN, PHOTO_MARGIN, POSTER_IMAGE_HEIGHT, MOVIE_INFO_CELL_HEIGHT - PHOTO_MARGIN * 4)];
+    } else {
+        [_posterImageView setFrame: CGRectMake(- PHOTO_MARGIN * .5, - PHOTO_MARGIN * 1.5, POSTER_IMAGE_HEIGHT + PHOTO_MARGIN * 2, MOVIE_INFO_CELL_HEIGHT + PHOTO_MARGIN * 1)];
+    }
     
     [_separator mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(_posterImageView.mas_right).with.offset(MARGIN);
@@ -149,7 +161,7 @@
     
     [_titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(_separator);
-        make.top.equalTo(_posterImageView).with.offset(PHOTO_MARGIN);
+        make.top.equalTo(self).with.offset(PHOTO_MARGIN * 2);
     }];
     
     [_yearLabel mas_makeConstraints:^(MASConstraintMaker *make) {

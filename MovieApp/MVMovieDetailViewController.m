@@ -28,50 +28,10 @@
     MVContentManager *_contentManager;
     CGRect _tableViewCellLocation;
     UIImageView *_tableViewbBackgroundView;
+    UIButton *backButton;
 }
 
 @synthesize movie = _movie;
-
-#pragma mark - Animation Presentation/Dismissal
-
--(void) animatePresentationWithStartRect: (CGRect) rect withBackgroundImage:(UIImage *) backgroundImage{
-    _tableViewbBackgroundView = [[UIImageView alloc] initWithImage:backgroundImage];
-    [self.view addSubview:_tableViewbBackgroundView];
-    
-    _tableViewCellLocation = rect;
-    
-    _mainView = [[MVMovieMainInfoView alloc] init];
-    [_mainView.layer setShadowColor:[UIColor lightGrayColor].CGColor];
-    [_mainView.layer setShadowOpacity:0.4];
-    [_mainView.layer setShadowRadius:3.0];
-    [_mainView.layer setShadowOffset:CGSizeMake(0.0, 10.0)];
-    [_mainView layoutViews];
-    [_mainView setMovie:_movie];
-    [_mainView setFrame:rect];
-    [self.view addSubview:_mainView];
-    
-    CGRect destinationRect = CGRectMake(rect.origin.x, MOVIE_INFO_CELL_HEIGHT, rect.size.width, rect.size.height);
-    
-    [UIView animateWithDuration:.3 animations:^{
-        [_mainView setFrame:destinationRect];
-        [_tableViewbBackgroundView setAlpha:0];
-    } completion:^(BOOL finished) {
-        [_tableViewbBackgroundView removeFromSuperview];
-    }];
-}
-
--(void) dismissViewWithAnimationToTableView {
-    [self.view addSubview:_tableViewbBackgroundView];
-    [_tableViewbBackgroundView setAlpha:0.0];
-    [self.view bringSubviewToFront:_mainView];
-    
-    [UIView animateWithDuration:.3 animations:^{
-        [_mainView setFrame:_tableViewCellLocation];
-        [_tableViewbBackgroundView setAlpha:1.0];
-    } completion:^(BOOL finished) {
-        [self.navigationController popViewControllerAnimated:NO];
-    }];
-}
 
 #pragma mark - View Layout
 
@@ -114,7 +74,7 @@
 }
 
 -(void) layoutBackbutton {
-    UIButton *backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    backButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [backButton setImage:[UIImage imageNamed:@"back_button_icon"] forState:UIControlStateNormal];
     [backButton sizeToFit];
     [backButton addTarget:self action:@selector(dismissViewWithAnimationToTableView) forControlEvents:UIControlEventTouchUpInside];
@@ -197,5 +157,54 @@
         make.top.equalTo(_segControl.mas_bottom);
     }];
 }
+
+#pragma mark - Animation Presentation/Dismissal
+
+-(void) animatePresentationWithStartRect: (CGRect) rect withBackgroundImage:(UIImage *) backgroundImage{
+    _tableViewbBackgroundView = [[UIImageView alloc] initWithImage:backgroundImage];
+    [self.view addSubview:_tableViewbBackgroundView];
+    
+    _tableViewCellLocation = rect;
+    
+    _mainView = [[MVMovieMainInfoView alloc] init];
+    [_mainView.layer setShadowColor:[UIColor lightGrayColor].CGColor];
+    [_mainView.layer setShadowOpacity:0.4];
+    [_mainView.layer setShadowRadius:3.0];
+    [_mainView.layer setShadowOffset:CGSizeMake(0.0, 10.0)];
+    [_mainView setMovie:_movie];
+    [_mainView setFrame:rect];
+    [_mainView layoutViews];
+    [_mainView setDetailMode:YES];
+    [self.view addSubview:_mainView];
+    
+    CGRect destinationRect = CGRectMake(rect.origin.x, MOVIE_INFO_CELL_HEIGHT, rect.size.width, rect.size.height);
+    
+    [backButton setEnabled:NO];
+    
+    [UIView animateWithDuration:.3 animations:^{
+        [_mainView setFrame:destinationRect];
+        [_tableViewbBackgroundView setAlpha:0];
+    } completion:^(BOOL finished) {
+        [_tableViewbBackgroundView removeFromSuperview];
+        [backButton setEnabled:YES];
+    }];
+}
+
+-(void) dismissViewWithAnimationToTableView {
+    [self.view addSubview:_tableViewbBackgroundView];
+    [_tableViewbBackgroundView setAlpha:0.0];
+    [self.view bringSubviewToFront:_mainView];
+    [backButton setEnabled:NO];
+    [_mainView setDetailMode:NO];
+    
+    [UIView animateWithDuration:.3 animations:^{
+        [_mainView setFrame:_tableViewCellLocation];
+        [_tableViewbBackgroundView setAlpha:1.0];
+    } completion:^(BOOL finished) {
+        [backButton setEnabled:YES];
+        [self.navigationController popViewControllerAnimated:NO];
+    }];
+}
+
 
 @end
