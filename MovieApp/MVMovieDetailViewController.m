@@ -16,6 +16,7 @@
 #import "MVMovieCastView.h"
 #import <youtube-ios-player-helper/YTPlayerView.h>
 #import "MVContentManager.h"
+#import <Branch.h>
 
 
 @implementation MVMovieDetailViewController {
@@ -29,6 +30,7 @@
     CGRect _tableViewCellLocation;
     UIImageView *_tableViewbBackgroundView;
     UIButton *backButton;
+    UIButton *shareButton;
 }
 
 @synthesize movie = _movie;
@@ -44,6 +46,7 @@
 -(void) layoutViews {
     [self layoutBackdropView];
     [self layoutBackbutton];
+    [self layoutSharebutton];
     [self layoutSegmentedControl];
 }
 
@@ -82,6 +85,28 @@
     
     [backButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.top.equalTo(self.view).with.offset(15);
+    }];
+}
+
+-(void) layoutSharebutton {
+    shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [shareButton setImage:[UIImage imageNamed:@"share"] forState:UIControlStateNormal];
+    [shareButton sizeToFit];
+    [shareButton addTarget:self action:@selector(share) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:shareButton];
+    
+    [shareButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.view).with.offset(15);
+        make.right.equalTo(self.view).with.offset(-15);
+    }];
+}
+
+-(void) share {
+    BranchUniversalObject *buo = [[BranchUniversalObject alloc] initWithTitle:self.movie.title];
+    buo.imageUrl = [NSString stringWithFormat:@"https://image.tmdb.org/t/p/w500%@", _movie.backdropPath];
+    [buo setCanonicalIdentifier:[NSString stringWithFormat:@"%ld", _movie.movieID]];
+    [buo showShareSheetWithShareText:@"Check out this movie!" completion:^(NSString * _Nullable activityType, BOOL completed) {
+        
     }];
 }
 
@@ -163,6 +188,10 @@
 -(void) animatePresentationWithStartRect: (CGRect) rect withBackgroundImage:(UIImage *) backgroundImage{
     _tableViewbBackgroundView = [[UIImageView alloc] initWithImage:backgroundImage];
     [self.view addSubview:_tableViewbBackgroundView];
+    
+    if (rect.size.width == 0 || rect.size.height == 0) {
+        rect = CGRectMake(CELL_SPACING, -100, self.view.frame.size.width - CELL_SPACING * 2, MOVIE_INFO_CELL_HEIGHT - CELL_SPACING);
+    }
     
     _tableViewCellLocation = rect;
     

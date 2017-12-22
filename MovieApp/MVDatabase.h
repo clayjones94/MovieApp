@@ -13,6 +13,7 @@
 @interface MVDatabase : NSObject
 
 + (void)loadMoviesForListType: (MVMovieListType) listType forPage: (NSInteger) pageNumber withBlock:(void(^)(NSDictionary *data, BOOL success))block;
++ (void)loadMovie: (NSString *) movieID withBlock:(void(^)(NSDictionary *data, BOOL success))block;
 + (void)loadCastForMovie:(MVMovie *) movie withBlock:(void(^)(NSDictionary *data, BOOL success))block;
 + (void)loadTrailerForMovie:(MVMovie *) movie withBlock:(void(^)(NSDictionary *data, BOOL success))block;
 

@@ -19,5 +19,6 @@
 -(void) loadMoviesForListType: (MVMovieListType)listType forPage: (NSInteger)page withCompletionBlock: (void(^)(BOOL success)) block;
 -(void) loadCastForMovie: (MVMovie *)movie withCompletionBlock: (void(^)(NSArray<MVCastMember *> * cast,BOOL success)) block;
 -(void) loadTrailerForMovie: (MVMovie *)movie withCompletionBlock: (void(^)(NSString *youtubeID,BOOL success)) block;
+-(void) loadMoviesForID: (NSString *)movieID withCompletionBlock: (void(^)(BOOL success, MVMovie *movie)) block;
 
 @end

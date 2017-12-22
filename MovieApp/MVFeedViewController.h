@@ -10,5 +10,5 @@
 #import <MKDropdownMenu/MKDropdownMenu.h>
 
 @interface MVFeedViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, MKDropdownMenuDelegate, MKDropdownMenuDataSource>
-
+-(CGRect) getTableViewRec;
 @end

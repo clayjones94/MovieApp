@@ -184,6 +184,14 @@
     [vc animatePresentationWithStartRect:rectOfCellInSuperview withBackgroundImage: screenShot];
 }
 
+-(CGRect) getTableViewRec {
+    MVMovieTableViewCell *cell = [_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    CGRect rectOfCellInTableView = [_tableView rectForRowAtIndexPath: [NSIndexPath indexPathForRow:0 inSection:0]];
+    CGRect rectOfBackgroundInTableView = CGRectMake(rectOfCellInTableView.origin.x + cell.infoView.frame.origin.x, rectOfCellInTableView.origin.y + cell.infoView.frame.origin.y, cell.infoView.frame.size.width, cell.infoView.frame.size.height);
+    CGRect rectOfCellInSuperview = [_tableView convertRect: rectOfBackgroundInTableView toView: _tableView.superview];
+    return rectOfCellInSuperview;
+}
+
 #pragma mark - DropDown Protocols
 
 - (NSInteger)numberOfComponentsInDropdownMenu:(MKDropdownMenu *)dropdownMenu {

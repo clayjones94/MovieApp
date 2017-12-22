@@ -34,6 +34,16 @@
     return _movies;
 }
 
+-(void) loadMoviesForID: (NSString *)movieID withCompletionBlock: (void(^)(BOOL success, MVMovie *movie)) block {
+    [MVDatabase loadMovie: movieID withBlock:^(NSDictionary *data, BOOL success) {
+        if (success) {
+            MVMovie *movie = [[MVMovie alloc] initWithDictionary:data];
+            block(success, movie);
+        }
+        block(success, nil);
+    }];
+}
+
 -(void) loadMoviesForListType: (MVMovieListType)listType forPage: (NSInteger)page withCompletionBlock: (void(^)(BOOL success)) block {
     if (page == 1) {
         _movies = [NSMutableArray new];

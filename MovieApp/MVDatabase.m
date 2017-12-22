@@ -18,13 +18,18 @@ static NSString *const API_KEY = @"4b11d1d4fb29804b66cf3646f2727c93";
     if (listType == NOW_PLAYING) {
         url = [NSString stringWithFormat:@"movie/now_playing"];
     } else if (listType == POPULAR) {
-        url = [NSString stringWithFormat:@"movie/popular"];
+        url = [NSString stringWithFormat:@"/discover/movie"];
     } else if (listType == TOP_RATED) {
         url = [NSString stringWithFormat:@"movie/top_rated"];
     } else if (listType == UPCOMING) {
         url = [NSString stringWithFormat:@"movie/upcoming"];
     }
     [self makeGETRequestToEndpoint:url withBodyData:@{@"page":[NSNumber numberWithInteger: pageNumber], @"sort_by":@"popularity.desc", @"language":@"en-US"} withBlock:block];
+}
+
++ (void)loadMovie: (NSString *) movieID withBlock:(void(^)(NSDictionary *data, BOOL success))block{
+    NSString *url = [NSString stringWithFormat:@"movie/%@", movieID];
+    [self makeGETRequestToEndpoint:url withBodyData:@{@"language":@"en-US"} withBlock:block];
 }
 
 + (void)loadCastForMovie:(MVMovie *) movie withBlock:(void(^)(NSDictionary *data, BOOL success))block{

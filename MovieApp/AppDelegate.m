@@ -9,6 +9,9 @@
 #import "AppDelegate.h"
 #import "MVFeedViewController.h"
 #import "MVDatabase.h"
+#import "MVContentManager.h"
+#import <Branch.h>
+#import "MVMovieDetailViewController.h"
 
 @interface AppDelegate ()
 
@@ -21,37 +24,56 @@
     
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:[MVFeedViewController new]];
+    MVFeedViewController *rootVC = [MVFeedViewController new];
+    
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:rootVC];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
     
+    Branch *branch = [Branch getInstance];
+    [branch initSessionWithLaunchOptions:launchOptions andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
+        if (!error) {
+            if (params[@"$canonical_identifier"]) {
+                [[MVContentManager sharedManager] loadMoviesForID:params[@"$canonical_identifier"] withCompletionBlock:^(BOOL success, MVMovie *movie) {
+                    if (success) {
+                        //Take screenshot of the background to give animation effect
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if (!movie) {
+                                return;
+                            }
+                            
+                            UIGraphicsBeginImageContext(nav.view.frame.size);
+                            CGContextRef context = UIGraphicsGetCurrentContext();
+                            [nav.view.layer renderInContext:context];
+                            UIImage *screenShot = UIGraphicsGetImageFromCurrentImageContext();
+                            UIGraphicsEndImageContext();
+                            
+                            MVMovieDetailViewController *vc = [MVMovieDetailViewController new];
+                            [vc setMovie:movie];
+                            [nav pushViewController:vc animated:NO];
+                            CGRect rect = [rootVC getTableViewRec];
+                            rect.origin = CGPointMake(rect.origin.x, -100);
+                            [vc animatePresentationWithStartRect:CGRectZero withBackgroundImage: screenShot];
+                        });
+                    }
+                }];
+            }
+        }
+    }];
+    
     return YES;
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
+    BOOL handledByBranch = [[Branch getInstance] continueUserActivity:userActivity];
+    
+    return handledByBranch;
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-}
-
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-}
-
-- (void)applicationWillTerminate:(UIApplication *)application {
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    // Saves changes in the application's managed object context before the application terminates.
-    [self saveContext];
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [[Branch getInstance] handlePushNotification:userInfo];
 }
 
 #pragma mark - Core Data stack
